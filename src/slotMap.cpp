@@ -27,7 +27,7 @@ SlotMap::key_type SlotMap::push_back(value_type &&data)
 
   // user key
   auto key{slot};
-  slot.id = reservedId;
+  key.id = reservedId;
 
   return key;
 }

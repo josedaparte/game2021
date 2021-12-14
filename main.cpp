@@ -50,9 +50,6 @@ int main()
     std::cout << it << " ";
   }
 
-  
-  
-
 
   // try
   // {
