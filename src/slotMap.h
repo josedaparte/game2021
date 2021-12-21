@@ -18,20 +18,20 @@ struct SlotMap
 
 
   constexpr std::size_t size() const { return size_; }
-  constexpr std::size_t capacity() const { return data_.capacity(); } 
-  constexpr void clear() { freeListInit(); generation_ = 0; }
+  std::size_t capacity() const { return data_.capacity(); } 
+  void clear() { freeListInit(); generation_ = 0; }
   bool erase(key_type key);
   bool is_valid(key_type key) const noexcept;
 
 //private:
 
-  constexpr void freeListInit() noexcept
+  void freeListInit() noexcept
   {
     for (int i{0}; i < indices_.size(); i++)
       indices_[i].id = i+1;
   }
-  constexpr index_type allocate();
-  constexpr void free(key_type key) noexcept;
+  index_type allocate();
+  void free(key_type key) noexcept;
 
 
   index_type size_{0};

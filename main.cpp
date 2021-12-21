@@ -1,28 +1,51 @@
 #include <iostream>
 #include <memory>
-
-#include <irrlicht/irrlicht.h>
+#include <cstring>
+#include <signal.h>
+#include <cstdint>
+extern "C" {
+  #include "tinyPTC/tinyptc.h"
+}
 
 #include "slotMap.h"
 
-void destroyDevice(irr::IrrlichtDevice *p)
+bool keepRunning { true };
+constexpr std::size_t WIDTH{ 800 }, HEIGHT{ 600 }, SCREEN_BUFFER_SIZE{ WIDTH * HEIGHT};
+constexpr uint32_t redColor   { 0x00FF0000 };
+constexpr uint32_t greenColor { 0x0000FF00 };
+constexpr uint32_t blueColor  { 0x000000FF };
+uint32_t *screen { nullptr };
+
+void initScreen()
 {
-  p->drop();
+  screen = new uint32_t[SCREEN_BUFFER_SIZE];
+
+  std::fill(screen, screen + SCREEN_BUFFER_SIZE, greenColor);
+  
+
+
 }
-using DEVICEDESTRUCTORTYPE = void (*)(irr::IrrlichtDevice *);
+
+void sigintHandler(int dummy)
+{
+  std::cout << "handler sigint \n";
+  keepRunning = false;
+}
 
 int game(void)
 {
   int returnValue{0};
 
-  std::unique_ptr<irr::IrrlichtDevice, DEVICEDESTRUCTORTYPE> device{
-      irr::createDevice(irr::video::EDT_SOFTWARE,
-                        irr::core::dimension2d<irr::u32>(640, 480),
-                        16, false, false, false, 0),
-      destroyDevice};
+  returnValue = ptc_open("My Juego", WIDTH, HEIGHT);
+  initScreen();
 
-  if (!device.get())
-    returnValue = 1;
+  while(keepRunning)
+  {
+    ptc_update(screen);
+  }
+
+  delete[] screen;
+  ptc_close();
 
   return returnValue;
 }
@@ -30,36 +53,20 @@ int game(void)
 int main()
 {
 
+  signal(SIGINT, sigintHandler);
+
   SlotMap components{};
-  std::vector<SlotMap::key_type> k;
 
-  k.push_back(components.push_back(1));
-  k.push_back(components.push_back(2));
-  k.push_back(components.push_back(3));
-  k.push_back(components.push_back(4));
 
- std::cout << "Borrando elemento " << components.erase(k[0]) << "\n";
- std::cout << "Borrando elemento " << components.erase(k[1]) << "\n";
- auto kk = components.push_back(88);
- k.push_back(components.push_back(90));
- components.erase(kk);
- k.push_back(components.push_back(77));
-
-  for (auto it : components.data_)
+  try
   {
-    std::cout << it << " ";
+    if (!game())
+      std::cout << "Fallo en abrir la ventana\n";
   }
-
-
-  // try
-  // {
-  //   if (game())
-  //     std::cout << "Fallo en abrir la ventana\n";
-  // }
-  // catch (std::exception const &e)
-  // {
-  //   std::cerr << "[EXCEPTION]: " << e.what() << "\n";
-  // }
+  catch (std::exception const &e)
+  {
+    std::cerr << "[EXCEPTION]: " << e.what() << "\n";
+  }
 
   return 0;
 }

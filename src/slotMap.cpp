@@ -54,7 +54,7 @@ bool SlotMap::is_valid(key_type key) const noexcept
   return true;
 }
 
-constexpr SlotMap::index_type SlotMap::allocate()
+SlotMap::index_type SlotMap::allocate()
 {
   // Reserve
   auto reservedId = freeList_;
@@ -72,7 +72,7 @@ constexpr SlotMap::index_type SlotMap::allocate()
   return reservedId;
 }
 
-constexpr void SlotMap::free(key_type key) noexcept
+void SlotMap::free(key_type key) noexcept
 {
   assert(is_valid(key));
   
