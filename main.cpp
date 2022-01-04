@@ -3,28 +3,14 @@
 #include <cstring>
 #include <signal.h>
 #include <cstdint>
-extern "C" {
-  #include "tinyPTC/tinyptc.h"
-}
+
 
 #include "slotMap.h"
+#include "sys/render.hpp"
 
 bool keepRunning { true };
-constexpr std::size_t WIDTH{ 800 }, HEIGHT{ 600 }, SCREEN_BUFFER_SIZE{ WIDTH * HEIGHT};
-constexpr uint32_t redColor   { 0x00FF0000 };
-constexpr uint32_t greenColor { 0x0000FF00 };
-constexpr uint32_t blueColor  { 0x000000FF };
-uint32_t *screen { nullptr };
-
-void initScreen()
-{
-  screen = new uint32_t[SCREEN_BUFFER_SIZE];
-
-  std::fill(screen, screen + SCREEN_BUFFER_SIZE, greenColor);
-  
 
 
-}
 
 void sigintHandler(int dummy)
 {
@@ -36,21 +22,18 @@ int game(void)
 {
   int returnValue{0};
 
-  returnValue = ptc_open("My Juego", WIDTH, HEIGHT);
-  initScreen();
+  ECS::RenderSystem renderSystem{800, 600};
 
   while(keepRunning)
   {
-    ptc_update(screen);
+    renderSystem.update();
   }
 
-  delete[] screen;
-  ptc_close();
 
   return returnValue;
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
   signal(SIGINT, sigintHandler);

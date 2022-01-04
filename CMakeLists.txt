@@ -9,6 +9,7 @@ add_subdirectory(src/lib)
 add_library(slotmap
     src/slotMap.h
     src/slotMap.cpp
+    src/sys/render.hpp
 )
 
 target_include_directories(slotmap
